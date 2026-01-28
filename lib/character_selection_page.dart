@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'book_cover_page.dart';
 
 class CharacterSelectionPage extends StatefulWidget {
   const CharacterSelectionPage({super.key});
@@ -175,11 +176,15 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
                     return;
                   }
                   
-                  // Show success message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Selected: ${_nameController.text}, ${currentCharacters[_selectedCharacterIndex!]}',
+                  // Navigate to Book Cover page with user data
+                  final selectedCharacterUrl = '$bucketUrl/${currentCharacters[_selectedCharacterIndex!]}';
+                  
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookCoverPage(
+                        userName: _nameController.text,
+                        characterImageUrl: selectedCharacterUrl,
                       ),
                     ),
                   );
