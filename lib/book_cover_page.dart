@@ -73,12 +73,11 @@ class BookCoverPage extends StatelessWidget {
                           ),
 
                           // 2. Character Circle (Precisely centered in the magnifying glass)
-                          // Based on standard layouts, the magnifying glass lens center is approx at (0.5, 0.45)
                           Align(
-                            alignment: const Alignment(0, -0.1), // Adjusted to match hand lens center
+                            alignment: Alignment.center, 
                             child: Container(
-                              width: size * 0.45,
-                              height: size * 0.45,
+                              width: size * 0.42,
+                              height: size * 0.42,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: const Color(0xFFB8D8E8),
@@ -109,7 +108,7 @@ class BookCoverPage extends StatelessWidget {
 
                           // 3. Name (Placed below the lens)
                           Align(
-                            alignment: const Alignment(0, 0.75), // Placed below the center lens
+                            alignment: const Alignment(0, 0.85), // Moved lower to avoid overlap
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: Text(
@@ -119,7 +118,7 @@ class BookCoverPage extends StatelessWidget {
                                   color: Colors.white,
                                   fontSize: size * 0.12,
                                   fontWeight: FontWeight.w900,
-                                  fontFamily: 'serif', // Generic slab-like serif
+                                  fontFamily: 'serif',
                                   letterSpacing: 1.5,
                                   shadows: [
                                     Shadow(
