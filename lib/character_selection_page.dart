@@ -263,6 +263,7 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
   Widget _buildCharacterCard(int index) {
     final isSelected = _selectedCharacterIndex == index;
     final imageUrl = '$bucketUrl/${currentCharacters[index]}';
+    print('Loading image from: $imageUrl'); // Debug print
     
     return GestureDetector(
       onTap: () {
@@ -296,8 +297,21 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
               );
             },
             errorBuilder: (context, error, stackTrace) {
-              return const Center(
-                child: Icon(Icons.error, color: Colors.red),
+              print('Error loading image: $imageUrl');
+              print('Error: $error');
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, color: Colors.red, size: 32),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Failed to load',
+                      style: TextStyle(fontSize: 10, color: Colors.red.shade700),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               );
             },
           ),
