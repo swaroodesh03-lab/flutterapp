@@ -15,15 +15,30 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
   // GCS bucket URL for character images
   final String bucketUrl = 'https://storage.googleapis.com/flutterappfortesting/characters';
   
-  // List of character image filenames
-  final List<String> characterImages = [
+  // List of boy character image filenames
+  final List<String> boyCharacters = [
     'boy1.png',
     'boy2.png',
     'boy3.png',
+    'boy4.png',
+    'boy5.png',
+    'boy6.png',
+  ];
+  
+  // List of girl character image filenames
+  final List<String> girlCharacters = [
+    'girl1.png',
+    'girl2.png',
+    'girl3.png',
     'girl4.png',
     'girl5.png',
     'girl6.png',
   ];
+  
+  // Get current character list based on selected gender
+  List<String> get currentCharacters {
+    return _selectedGender == 'Boy' ? boyCharacters : girlCharacters;
+  }
 
   @override
   void dispose() {
@@ -133,7 +148,7 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
                   mainAxisSpacing: 12,
                   childAspectRatio: 1,
                 ),
-                itemCount: characterImages.length,
+                itemCount: currentCharacters.length,
                 itemBuilder: (context, index) {
                   return _buildCharacterCard(index);
                 },
@@ -164,7 +179,7 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Selected: ${_nameController.text}, ${characterImages[_selectedCharacterIndex!]}',
+                        'Selected: ${_nameController.text}, ${currentCharacters[_selectedCharacterIndex!]}',
                       ),
                     ),
                   );
@@ -220,6 +235,7 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
       onPressed: () {
         setState(() {
           _selectedGender = gender;
+          _selectedCharacterIndex = null; // Reset selection when gender changes
         });
       },
       style: OutlinedButton.styleFrom(
@@ -246,7 +262,7 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
 
   Widget _buildCharacterCard(int index) {
     final isSelected = _selectedCharacterIndex == index;
-    final imageUrl = '$bucketUrl/${characterImages[index]}';
+    final imageUrl = '$bucketUrl/${currentCharacters[index]}';
     
     return GestureDetector(
       onTap: () {
