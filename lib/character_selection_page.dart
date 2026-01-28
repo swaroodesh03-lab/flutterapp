@@ -177,17 +177,32 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
                   }
                   
                   // Navigate to Book Cover page with user data
-                  final selectedCharacterUrl = '$bucketUrl/${currentCharacters[_selectedCharacterIndex!]}';
-                  
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BookCoverPage(
-                        userName: _nameController.text,
-                        characterImageUrl: selectedCharacterUrl,
+                  try {
+                    final selectedCharacterUrl = '$bucketUrl/${currentCharacters[_selectedCharacterIndex!]}';
+                    debugPrint('Navigating to BookCoverPage with name: ${_nameController.text} and url: $selectedCharacterUrl');
+                    
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookCoverPage(
+                          userName: _nameController.text,
+                          characterImageUrl: selectedCharacterUrl,
+                        ),
                       ),
-                    ),
-                  );
+                    ).then((value) {
+                      debugPrint('Navigation completed');
+                    }).catchError((error) {
+                      debugPrint('Navigation error: $error');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Navigation failed: $error')),
+                      );
+                    });
+                  } catch (e) {
+                    debugPrint('Error before navigation: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,

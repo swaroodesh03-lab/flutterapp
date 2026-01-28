@@ -12,6 +12,7 @@ class BookCoverPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Building BookCoverPage for user: $userName');
     const String coverImageUrl = 'https://storage.googleapis.com/flutterappfortesting/book/cover.jpg';
 
     return Scaffold(
