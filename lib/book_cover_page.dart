@@ -16,220 +16,200 @@ class BookCoverPage extends StatelessWidget {
     const String coverImageUrl = 'https://storage.googleapis.com/flutterappfortesting/book/cover.jpg';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5E6D3),
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
           'I Spy You',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontFamily: 'serif'),
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Your Book Cover',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'serif',
-                  ),
-                ),
-                const SizedBox(height: 30),
-                
-                // Book cover with character and name overlay
-                Container(
-                  constraints: const BoxConstraints(
-                    maxWidth: 500,
-                    maxHeight: 700,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Base book cover image
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          coverImageUrl,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              height: 600,
-                              alignment: Alignment.center,
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 600,
-                              alignment: Alignment.center,
-                              child: const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.error, color: Colors.red, size: 48),
-                                  SizedBox(height: 8),
-                                  Text('Failed to load cover image'),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Book cover with character and name overlay
+                    Container(
+                      constraints: const BoxConstraints(
+                        maxWidth: 600,
                       ),
-                      
-                      // Character circle and name overlay
-                      Positioned(
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: AspectRatio(
+                        aspectRatio: 1, // Children's books are often square
+                        child: Stack(
+                          alignment: Alignment.center,
                           children: [
-                            // Character in a circle
-                            Container(
-                              width: 180,
-                              height: 180,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: const Color(0xFFB8D8E8),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 4,
+                            // 1. Base book cover image
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                coverImageUrl,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  color: const Color(0xFF8DB600), // Matching the green in screenshot
+                                  child: const Icon(Icons.error, color: Colors.white),
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.3),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
                               ),
-                              child: ClipOval(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                            ),
+
+                            // 2. Character Circle (Placed exactly in the magnifying glass)
+                            // In the reference, the lens is roughly center-top
+                            Positioned(
+                              top: constraints.maxWidth > 600 ? 120 : constraints.maxWidth * 0.2, 
+                              child: Container(
+                                width: constraints.maxWidth > 600 ? 220 : constraints.maxWidth * 0.4,
+                                height: constraints.maxWidth > 600 ? 220 : constraints.maxWidth * 0.4,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFFB8D8E8), // Sky blue background
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 8,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.4),
+                                      blurRadius: 15,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipOval(
                                   child: Image.network(
                                     characterImageUrl,
-                                    fit: BoxFit.cover,
+                                    fit: BoxFit.contain, // Ensuring character is not cut off
                                     loadingBuilder: (context, child, loadingProgress) {
                                       if (loadingProgress == null) return child;
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.person,
-                                        size: 80,
-                                        color: Colors.grey,
-                                      );
+                                      return const Center(child: CircularProgressIndicator(color: Colors.white));
                                     },
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
-                            
-                            // User's name with "I Spy" style font
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 8,
-                                    spreadRadius: 1,
+
+                            // 3. User's Name (Styled like "I SPY" / "SAMPLE!" text)
+                            Positioned(
+                              bottom: constraints.maxWidth > 600 ? 80 : constraints.maxWidth * 0.15,
+                              child: Column(
+                                children: [
+                                  // The name text with the iconic heavy slab style
+                                  Text(
+                                    userName.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: constraints.maxWidth > 600 ? 64 : constraints.maxWidth * 0.12,
+                                      fontWeight: FontWeight.w900,
+                                      fontFamily: 'serif', // Standard heavy serif for blocky look
+                                      color: Colors.white,
+                                      letterSpacing: 2,
+                                      shadows: [
+                                        Shadow(
+                                          offset: const Offset(4, 4),
+                                          blurRadius: 0,
+                                          color: Colors.black.withOpacity(0.5),
+                                        ),
+                                        const Shadow(
+                                          offset: Offset(-1, -1),
+                                          color: Colors.black,
+                                        ),
+                                        const Shadow(
+                                          offset: Offset(1, -1),
+                                          color: Colors.black,
+                                        ),
+                                        const Shadow(
+                                          offset: Offset(-1, 1),
+                                          color: Colors.black,
+                                        ),
+                                        const Shadow(
+                                          offset: Offset(1, 1),
+                                          color: Colors.black,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
-                              ),
-                              child: Text(
-                                userName,
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'serif',
-                                  color: Colors.black,
-                                  letterSpacing: 1.2,
-                                ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                
-                // Action buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text('Back'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade700,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
                     ),
-                    const SizedBox(width: 16),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Add next action (e.g., preview book pages)
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Book cover created successfully!'),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.check),
-                      label: const Text('Continue'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
+                    const SizedBox(height: 40),
+                    
+                    // Action buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildActionButton(
+                          label: 'Back',
+                          icon: Icons.arrow_back,
+                          onPressed: () => Navigator.pop(context),
+                          color: Colors.grey.shade800,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        const SizedBox(width: 20),
+                        _buildActionButton(
+                          label: 'Pre-order',
+                          icon: Icons.shopping_cart,
+                          onPressed: () {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Personalizing $userName\'s book...')),
+                            );
+                          },
+                          color: Colors.black,
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onPressed,
+    required Color color,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 20),
+      label: Text(
+        label,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
+        elevation: 5,
       ),
     );
   }
