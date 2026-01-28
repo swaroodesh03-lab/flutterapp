@@ -28,133 +28,114 @@ class BookCoverPage extends StatelessWidget {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
+          final double size = constraints.maxWidth > 500 ? 500 : constraints.maxWidth;
+          
           return Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Book cover with character and name overlay
+                    // Book cover container
                     Container(
-                      constraints: const BoxConstraints(
-                        maxWidth: 600,
-                      ),
+                      width: size,
+                      height: size,
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
-                      child: AspectRatio(
-                        aspectRatio: 1, // Children's books are often square
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // 1. Base book cover image
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
+                      child: Stack(
+                        children: [
+                          // 1. Base Cover Image
+                          Positioned.fill(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
                               child: Image.network(
                                 coverImageUrl,
                                 fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
                                 loadingBuilder: (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
                                   return const Center(child: CircularProgressIndicator());
                                 },
                                 errorBuilder: (context, error, stackTrace) => Container(
-                                  color: const Color(0xFF8DB600), // Matching the green in screenshot
-                                  child: const Icon(Icons.error, color: Colors.white),
+                                  color: const Color(0xFF8DB600),
+                                  child: const Center(child: Text('Cover Image Load Error')),
                                 ),
                               ),
                             ),
+                          ),
 
-                            // 2. Character Circle (Placed exactly in the magnifying glass)
-                            // In the reference, the lens is roughly center-top
-                            Positioned(
-                              top: constraints.maxWidth > 600 ? 120 : constraints.maxWidth * 0.2, 
-                              child: Container(
-                                width: constraints.maxWidth > 600 ? 220 : constraints.maxWidth * 0.4,
-                                height: constraints.maxWidth > 600 ? 220 : constraints.maxWidth * 0.4,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: const Color(0xFFB8D8E8), // Sky blue background
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 8,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.4),
-                                      blurRadius: 15,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
+                          // 2. Character Circle (Precisely centered in the magnifying glass)
+                          // Based on standard layouts, the magnifying glass lens center is approx at (0.5, 0.45)
+                          Align(
+                            alignment: const Alignment(0, -0.1), // Adjusted to match hand lens center
+                            child: Container(
+                              width: size * 0.45,
+                              height: size * 0.45,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFFB8D8E8),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 6,
                                 ),
-                                child: ClipOval(
-                                  child: Image.network(
-                                    characterImageUrl,
-                                    fit: BoxFit.contain, // Ensuring character is not cut off
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return const Center(child: CircularProgressIndicator(color: Colors.white));
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            // 3. User's Name (Styled like "I SPY" / "SAMPLE!" text)
-                            Positioned(
-                              bottom: constraints.maxWidth > 600 ? 80 : constraints.maxWidth * 0.15,
-                              child: Column(
-                                children: [
-                                  // The name text with the iconic heavy slab style
-                                  Text(
-                                    userName.toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: constraints.maxWidth > 600 ? 64 : constraints.maxWidth * 0.12,
-                                      fontWeight: FontWeight.w900,
-                                      fontFamily: 'serif', // Standard heavy serif for blocky look
-                                      color: Colors.white,
-                                      letterSpacing: 2,
-                                      shadows: [
-                                        Shadow(
-                                          offset: const Offset(4, 4),
-                                          blurRadius: 0,
-                                          color: Colors.black.withOpacity(0.5),
-                                        ),
-                                        const Shadow(
-                                          offset: Offset(-1, -1),
-                                          color: Colors.black,
-                                        ),
-                                        const Shadow(
-                                          offset: Offset(1, -1),
-                                          color: Colors.black,
-                                        ),
-                                        const Shadow(
-                                          offset: Offset(-1, 1),
-                                          color: Colors.black,
-                                        ),
-                                        const Shadow(
-                                          offset: Offset(1, 1),
-                                          color: Colors.black,
-                                        ),
-                                      ],
-                                    ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
                                   ),
                                 ],
                               ),
+                              child: ClipOval(
+                                child: Image.network(
+                                  characterImageUrl,
+                                  fit: BoxFit.contain,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(child: CircularProgressIndicator(color: Colors.white));
+                                  },
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
+                          ),
+
+                          // 3. Name (Placed below the lens)
+                          Align(
+                            alignment: const Alignment(0, 0.75), // Placed below the center lens
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Text(
+                                userName,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: size * 0.12,
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'serif', // Generic slab-like serif
+                                  letterSpacing: 1.5,
+                                  shadows: [
+                                    Shadow(
+                                      offset: const Offset(2, 2),
+                                      blurRadius: 4.0,
+                                      color: Colors.black.withOpacity(0.6),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
                     
                     // Action buttons
                     Row(
@@ -168,11 +149,11 @@ class BookCoverPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 20),
                         _buildActionButton(
-                          label: 'Pre-order',
-                          icon: Icons.shopping_cart,
+                          label: 'Preview',
+                          icon: Icons.visibility,
                           onPressed: () {
                              ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Personalizing $userName\'s book...')),
+                              SnackBar(content: Text('Building $userName\'s story...')),
                             );
                           },
                           color: Colors.black,
@@ -205,11 +186,10 @@ class BookCoverPage extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(30), // Pill style
         ),
-        elevation: 5,
       ),
     );
   }
