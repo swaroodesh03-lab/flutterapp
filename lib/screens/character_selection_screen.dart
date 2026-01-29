@@ -1,64 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/personalization_provider.dart';
+import '../widgets/character_preview.dart';
 
-class CharacterSelectionScreen extends StatefulWidget {
+class CharacterSelectionScreen extends ConsumerWidget {
   const CharacterSelectionScreen({super.key});
 
   @override
-  State<CharacterSelectionScreen> createState() => _CharacterSelectionScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(personalizationProvider);
+    final notifier = ref.read(personalizationProvider.notifier);
 
-class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  String _selectedGender = 'Boy';
-  int? _selectedCharacterIndex;
-
-  // GCS bucket URL for character images
-  final String bucketUrl = 'https://storage.googleapis.com/flutterappfortesting/characters';
-  
-  // List of boy character image filenames
-  final List<String> boyCharacters = [
-    'boy1.png',
-    'boy2.png',
-    'boy3.png',
-    'boy4.png',
-    'boy5.png',
-    'boy6.png',
-  ];
-  
-  // List of girl character image filenames
-  final List<String> girlCharacters = [
-    'girl1.png',
-    'girl2.png',
-    'girl3.png',
-    'girl4.png',
-    'girl5.png',
-    'girl6.png',
-  ];
-  
-  // Get current character list based on selected gender
-  List<String> get currentCharacters {
-    return _selectedGender == 'Boy' ? boyCharacters : girlCharacters;
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5E6D3),
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          'I Spy You',
+          'Personalize Your Adventure',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -66,151 +28,114 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 20),
-              const Text(
-                'Step 1 of 1',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Who is this book for?',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'serif',
+              // Character Preview Section
+              Center(
+                child: CharacterPreview(
+                  gender: state.gender,
+                  skinTone: state.skinTone,
+                  hairStyle: state.hairStyle,
+                  hairColor: state.hairColor,
+                  hasGlasses: state.hasGlasses,
                 ),
               ),
               const SizedBox(height: 30),
-              
-              const Text(
-                'First name',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+
+              // Name Input
+              const Text('Child\'s Name', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextField(
-                controller: _nameController,
+                onChanged: (value) => notifier.setName(value),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
-                  hintText: "Enter Name",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: Colors.grey),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: Colors.grey),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                  hintText: 'Enter name',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
-              const SizedBox(height: 30),
-              
-              const Text(
-                'Choose their character',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
+
+              // Gender Selection
+              const Text('Gender', style: TextStyle(fontWeight: FontWeight.bold)),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildGenderButton('Boy'),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildGenderButton('Girl'),
+                  _choiceChip(ref, 'Boy', state.gender == 'Boy', (val) => notifier.setGender('Boy')),
+                  const SizedBox(width: 8),
+                  _choiceChip(ref, 'Girl', state.gender == 'Girl', (val) => notifier.setGender('Girl')),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Skin Tone Selection
+              const Text('Skin Tone', style: TextStyle(fontWeight: FontWeight.bold)),
+              Row(
+                children: ['Light', 'Medium', 'Dark'].map((tone) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: _choiceChip(ref, tone, state.skinTone == tone, (val) => notifier.setSkinTone(tone)),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+
+              // Hair Style Selection
+              const Text('Hair Style', style: TextStyle(fontWeight: FontWeight.bold)),
+              Row(
+                children: ['Short', 'Long', 'Curly'].map((style) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: _choiceChip(ref, style, state.hairStyle == style, (val) => notifier.setHairStyle(style)),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+
+              // Hair Color Selection
+              const Text('Hair Color', style: TextStyle(fontWeight: FontWeight.bold)),
+              Row(
+                children: ['Black', 'Brown', 'Blonde'].map((color) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: _choiceChip(ref, color, state.hairColor == color, (val) => notifier.setHairColor(color)),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+
+              // Glasses Toggle
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Wears Glasses?', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Switch(
+                    value: state.hasGlasses,
+                    onChanged: (value) => notifier.setHasGlasses(value),
+                    activeColor: Colors.black,
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1,
-                ),
-                itemCount: currentCharacters.length,
-                itemBuilder: (context, index) {
-                  return _buildCharacterCard(index);
-                },
-              ),
               const SizedBox(height: 30),
-              
+
+              // Continue Button
               ElevatedButton(
                 onPressed: () {
-                  if (_nameController.text.isEmpty) {
+                  if (state.name.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter a first name')),
+                      const SnackBar(content: Text('Please enter a name')),
                     );
                     return;
                   }
-                  if (_selectedCharacterIndex == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please select a character')),
-                    );
-                    return;
-                  }
-                  
-                  final selectedCharacterUrl = '$bucketUrl/${currentCharacters[_selectedCharacterIndex!]}';
                   context.push('/book-cover', extra: {
-                    'name': _nameController.text,
-                    'character': selectedCharacterUrl,
+                    'name': state.name,
+                    'character': state.gender, // Or a combined key
                   });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text(
-                  'Continue',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              
-              TextButton(
-                onPressed: () {
-                  // context.pop() or similar
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.arrow_back, size: 16, color: Colors.black),
-                    SizedBox(width: 8),
-                    Text(
-                      'Back to the product page',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
+                child: const Text('Confirm Personalization', style: TextStyle(fontSize: 18)),
               ),
             ],
           ),
@@ -219,73 +144,13 @@ class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
     );
   }
 
-  Widget _buildGenderButton(String gender) {
-    final isSelected = _selectedGender == gender;
-    return OutlinedButton(
-      onPressed: () {
-        setState(() {
-          _selectedGender = gender;
-          _selectedCharacterIndex = null;
-        });
-      },
-      style: OutlinedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.white : Colors.transparent,
-        side: BorderSide(
-          color: isSelected ? Colors.black : Colors.grey,
-          width: isSelected ? 2 : 1,
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
-      ),
-      child: Text(
-        gender,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 16,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCharacterCard(int index) {
-    final isSelected = _selectedCharacterIndex == index;
-    final imageUrl = '$bucketUrl/${currentCharacters[index]}';
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCharacterIndex = index;
-        });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFB8D8E8),
-          border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey.shade400,
-            width: isSelected ? 3 : 1,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(7),
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator());
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return const Center(
-                child: Icon(Icons.error, color: Colors.red),
-              );
-            },
-          ),
-        ),
-      ),
+  Widget _choiceChip(WidgetRef ref, String label, bool isSelected, Function(bool) onSelected) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: onSelected,
+      selectedColor: Colors.blue.shade100,
+      labelStyle: TextStyle(color: isSelected ? Colors.black : Colors.black54),
     );
   }
 }

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'screens/catalog_screen.dart';
 import 'screens/character_selection_screen.dart';
 import 'screens/book_cover_screen.dart';
+import 'screens/book_preview_screen.dart';
 
 void main() {
   runApp(
@@ -18,17 +20,19 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
+      builder: (context, state) => const CatalogScreen(),
+    ),
+    GoRoute(
+      path: '/personalize/:bookId',
       builder: (context, state) => const CharacterSelectionScreen(),
     ),
     GoRoute(
       path: '/book-cover',
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return BookCoverScreen(
-          characterName: extra?['name'] ?? '',
-          selectedCharacter: extra?['character'] ?? '',
-        );
-      },
+      builder: (context, state) => const BookCoverScreen(),
+    ),
+    GoRoute(
+      path: '/preview',
+      builder: (context, state) => const BookPreviewScreen(),
     ),
   ],
 );

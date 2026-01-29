@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/personalization_provider.dart';
+import '../widgets/character_preview.dart';
 
-class BookCoverScreen extends StatelessWidget {
-  final String characterName;
-  final String selectedCharacter;
-
-  const BookCoverScreen({
-    super.key,
-    required this.characterName,
-    required this.selectedCharacter,
-  });
+class BookCoverScreen extends ConsumerWidget {
+  const BookCoverScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(personalizationProvider);
     const String coverImageUrl = 'https://storage.googleapis.com/flutterappfortesting/book/cover.jpg';
 
     return Scaffold(
@@ -64,25 +61,16 @@ class BookCoverScreen extends StatelessWidget {
                               ),
                             ),
                           ),
+                          // Character Circle (Using our Layered Preview)
                           Align(
                             alignment: Alignment.center, 
-                            child: Container(
-                              width: size * 0.42,
-                              height: size * 0.42,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: const Color(0xFFB8D8E8),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 6,
-                                ),
-                              ),
-                              child: ClipOval(
-                                child: Image.network(
-                                  selectedCharacter,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
+                            child: CharacterPreview(
+                              gender: state.gender,
+                              skinTone: state.skinTone,
+                              hairStyle: state.hairStyle,
+                              hairColor: state.hairColor,
+                              hasGlasses: state.hasGlasses,
+                              size: size * 0.42,
                             ),
                           ),
                           Align(
@@ -90,7 +78,7 @@ class BookCoverScreen extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: Text(
-                                characterName,
+                                state.name,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
@@ -126,11 +114,7 @@ class BookCoverScreen extends StatelessWidget {
                         _buildActionButton(
                           label: 'Preview Story',
                           icon: Icons.visibility,
-                          onPressed: () {
-                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Building $characterName\'s story...')),
-                            );
-                          },
+                          onPressed: () => context.push('/preview'),
                           color: Colors.black,
                         ),
                       ],
