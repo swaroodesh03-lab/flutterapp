@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'book_cover_page.dart';
+import 'package:go_router/go_router.dart';
 
-class CharacterSelectionPage extends StatefulWidget {
-  const CharacterSelectionPage({super.key});
+class CharacterSelectionScreen extends StatefulWidget {
+  const CharacterSelectionScreen({super.key});
 
   @override
-  State<CharacterSelectionPage> createState() => _CharacterSelectionPageState();
+  State<CharacterSelectionScreen> createState() => _CharacterSelectionScreenState();
 }
 
-class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
+class _CharacterSelectionScreenState extends State<CharacterSelectionScreen> {
   final TextEditingController _nameController = TextEditingController();
   String _selectedGender = 'Boy';
   int? _selectedCharacterIndex;
@@ -87,7 +87,6 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
               ),
               const SizedBox(height: 30),
               
-              // First name input
               const Text(
                 'First name',
                 style: TextStyle(
@@ -101,6 +100,7 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
+                  hintText: "Enter Name",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide: const BorderSide(color: Colors.grey),
@@ -117,7 +117,6 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
               ),
               const SizedBox(height: 30),
               
-              // Gender selection
               const Text(
                 'Choose their character',
                 style: TextStyle(
@@ -139,7 +138,6 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
               ),
               const SizedBox(height: 24),
               
-              // Character grid
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -156,53 +154,26 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
               ),
               const SizedBox(height: 30),
               
-              // Continue button
               ElevatedButton(
                 onPressed: () {
                   if (_nameController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter a first name'),
-                      ),
+                      const SnackBar(content: Text('Please enter a first name')),
                     );
                     return;
                   }
                   if (_selectedCharacterIndex == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select a character'),
-                      ),
+                      const SnackBar(content: Text('Please select a character')),
                     );
                     return;
                   }
                   
-                  // Navigate to Book Cover page with user data
-                  try {
-                    final selectedCharacterUrl = '$bucketUrl/${currentCharacters[_selectedCharacterIndex!]}';
-                    debugPrint('Navigating to BookCoverPage with name: ${_nameController.text} and url: $selectedCharacterUrl');
-                    
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookCoverPage(
-                          userName: _nameController.text,
-                          characterImageUrl: selectedCharacterUrl,
-                        ),
-                      ),
-                    ).then((value) {
-                      debugPrint('Navigation completed');
-                    }).catchError((error) {
-                      debugPrint('Navigation error: $error');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navigation failed: $error')),
-                      );
-                    });
-                  } catch (e) {
-                    debugPrint('Error before navigation: $e');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
-                  }
+                  final selectedCharacterUrl = '$bucketUrl/${currentCharacters[_selectedCharacterIndex!]}';
+                  context.push('/book-cover', extra: {
+                    'name': _nameController.text,
+                    'character': selectedCharacterUrl,
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -222,14 +193,13 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
               ),
               const SizedBox(height: 16),
               
-              // Back to product page link
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  // context.pop() or similar
                 },
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(Icons.arrow_back, size: 16, color: Colors.black),
                     SizedBox(width: 8),
                     Text(
@@ -255,7 +225,7 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
       onPressed: () {
         setState(() {
           _selectedGender = gender;
-          _selectedCharacterIndex = null; // Reset selection when gender changes
+          _selectedCharacterIndex = null;
         });
       },
       style: OutlinedButton.styleFrom(
@@ -283,7 +253,6 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
   Widget _buildCharacterCard(int index) {
     final isSelected = _selectedCharacterIndex == index;
     final imageUrl = '$bucketUrl/${currentCharacters[index]}';
-    print('Loading image from: $imageUrl'); // Debug print
     
     return GestureDetector(
       onTap: () {
@@ -307,31 +276,11 @@ class _CharacterSelectionPageState extends State<CharacterSelectionPage> {
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                      : null,
-                ),
-              );
+              return const Center(child: CircularProgressIndicator());
             },
             errorBuilder: (context, error, stackTrace) {
-              print('Error loading image: $imageUrl');
-              print('Error: $error');
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error, color: Colors.red, size: 32),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Failed to load',
-                      style: TextStyle(fontSize: 10, color: Colors.red.shade700),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+              return const Center(
+                child: Icon(Icons.error, color: Colors.red),
               );
             },
           ),

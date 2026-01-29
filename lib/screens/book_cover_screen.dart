@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 
-class BookCoverPage extends StatelessWidget {
-  final String userName;
-  final String characterImageUrl;
+class BookCoverScreen extends StatelessWidget {
+  final String characterName;
+  final String selectedCharacter;
 
-  const BookCoverPage({
+  const BookCoverScreen({
     super.key,
-    required this.userName,
-    required this.characterImageUrl,
+    required this.characterName,
+    required this.selectedCharacter,
   });
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Building BookCoverPage for user: $userName');
     const String coverImageUrl = 'https://storage.googleapis.com/flutterappfortesting/book/cover.jpg';
 
     return Scaffold(
@@ -37,7 +36,6 @@ class BookCoverPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Book cover container
                     Container(
                       width: size,
                       height: size,
@@ -53,17 +51,12 @@ class BookCoverPage extends StatelessWidget {
                       ),
                       child: Stack(
                         children: [
-                          // 1. Base Cover Image
                           Positioned.fill(
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
                                 coverImageUrl,
                                 fit: BoxFit.cover,
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return const Center(child: CircularProgressIndicator());
-                                },
                                 errorBuilder: (context, error, stackTrace) => Container(
                                   color: const Color(0xFF8DB600),
                                   child: const Center(child: Text('Cover Image Load Error')),
@@ -71,8 +64,6 @@ class BookCoverPage extends StatelessWidget {
                               ),
                             ),
                           ),
-
-                          // 2. Character Circle (Precisely centered in the magnifying glass)
                           Align(
                             alignment: Alignment.center, 
                             child: Container(
@@ -85,34 +76,21 @@ class BookCoverPage extends StatelessWidget {
                                   color: Colors.white,
                                   width: 6,
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 10,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
                               ),
                               child: ClipOval(
                                 child: Image.network(
-                                  characterImageUrl,
+                                  selectedCharacter,
                                   fit: BoxFit.contain,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const Center(child: CircularProgressIndicator(color: Colors.white));
-                                  },
                                 ),
                               ),
                             ),
                           ),
-
-                          // 3. Name (Placed below the lens)
                           Align(
-                            alignment: const Alignment(0, 0.85), // Moved lower to avoid overlap
+                            alignment: const Alignment(0, 0.85),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               child: Text(
-                                userName,
+                                characterName,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
@@ -135,8 +113,6 @@ class BookCoverPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    
-                    // Action buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -148,11 +124,11 @@ class BookCoverPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 20),
                         _buildActionButton(
-                          label: 'Preview',
+                          label: 'Preview Story',
                           icon: Icons.visibility,
                           onPressed: () {
                              ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Building $userName\'s story...')),
+                              SnackBar(content: Text('Building $characterName\'s story...')),
                             );
                           },
                           color: Colors.black,
@@ -187,7 +163,7 @@ class BookCoverPage extends StatelessWidget {
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30), // Pill style
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
     );
