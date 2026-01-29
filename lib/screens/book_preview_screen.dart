@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/personalization_provider.dart';
+import '../providers/cart_provider.dart';
 import '../models/story_page.dart';
 import '../widgets/character_preview.dart';
 
@@ -74,7 +75,12 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Add to cart logic
+                ref.read(cartProvider.notifier).addItem(
+                  'The Magical Adventure', 
+                  24.99, 
+                  state
+                );
+                context.push('/cart');
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
               child: const Text('Add to Cart'),

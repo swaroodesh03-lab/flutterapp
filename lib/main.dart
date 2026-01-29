@@ -6,6 +6,8 @@ import 'screens/catalog_screen.dart';
 import 'screens/character_selection_screen.dart';
 import 'screens/book_cover_screen.dart';
 import 'screens/book_preview_screen.dart';
+import 'screens/cart_screen.dart';
+import 'screens/admin_dashboard_screen.dart';
 
 void main() {
   runApp(
@@ -33,6 +35,14 @@ final _router = GoRouter(
     GoRoute(
       path: '/preview',
       builder: (context, state) => const BookPreviewScreen(),
+    ),
+    GoRoute(
+      path: '/cart',
+      builder: (context, state) => const CartScreen(),
+    ),
+    GoRoute(
+      path: '/admin',
+      builder: (context, state) => const AdminDashboardScreen(),
     ),
   ],
 );

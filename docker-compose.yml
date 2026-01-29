@@ -28,3 +28,8 @@ services:
       - "3004:3004"
     env_file:
       - ./backend/admin-service/.env
+
+  flutter-frontend:
+    build: .
+    ports:
+      - "8080:8080"

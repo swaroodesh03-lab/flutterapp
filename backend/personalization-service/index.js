@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app = express();
@@ -8,31 +9,33 @@ const PORT = process.env.PORT || 3002;
 app.use(cors());
 app.use(express.json());
 
-// Dummy character assets config
-const characterConfig = {
-    genders: ['boy', 'girl'],
-    skinTones: ['light', 'medium', 'dark'],
-    hairStyles: ['short', 'long', 'curly'],
-    hairColors: ['black', 'brown', 'blonde'],
-    glasses: [true, false]
-};
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
 
-app.get('/api/v1/personalize/config', (req, res) => {
-    res.json(characterConfig);
-});
-
-app.post('/api/v1/personalize/preview', (req, res) => {
+app.post('/api/v1/personalize/preview', async (req, res) => {
     const { bookId, personalization } = req.body;
 
-    // Logic to return combined layer URLs based on personalization
-    // For now, return mock paths
+    // Logic to fetch story templates and map them to the character
+    const { data: stories, error } = await supabase
+        .from('stories')
+        .select('*')
+        .eq('book_id', bookId)
+        .order('page_number', { ascending: true });
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Process templates
+    const personalizedStories = stories.map(story => ({
+        pageNumber: story.page_number,
+        text: story.text_template.replace(/{NAME}/g, personalization.name),
+        layers: story.image_layer_paths
+    }));
+
     res.json({
-        previewUrl: 'https://storage.googleapis.com/flutterappfortesting/previews/sample.png',
-        layers: [
-            `characters/${personalization.gender}/skin/${personalization.skinTone}.png`,
-            `characters/${personalization.gender}/hair/${personalization.hairStyle}_${personalization.hairColor}.png`,
-            personalization.hasGlasses ? `characters/accessories/glasses.png` : null
-        ].filter(Boolean)
+        stories: personalizedStories,
+        previewImageUrl: `https://storage.googleapis.com/${process.env.GCS_BUCKET_NAME}/previews/${personalization.gender}_preview.png`
     });
 });
 
