@@ -1,0 +1,13 @@
+build/
+.dart_tool/
+.git/
+.idea/
+.vscode/
+.env
+android/
+ios/
+linux/
+macos/
+windows/
+test/
+backend/
